@@ -1,29 +1,30 @@
-import http from "http"
-import { Server } from "socket.io"
+import http from "http";
+import {Server} from "socket.io";
 
 const httpServer = http.createServer();
-const io = new Server(httpServer, {
-    cors: {
-        origin: "http://127.0.0.1:5500"
+const io = new Server(httpServer,{
+    cors : {
+        origin : "http://localhost:5173",
     }
-});
+})
+
 
 io.on("connection", (socket) => {
+    console.log("User connected:", socket.id);
 
-    socket.emit("message", "Hello from server")
-    
-    
-    
+    socket.on("send_scores", (scores) => {
+        console.log("Received:", scores);
 
-    socket.on("message", (data) => {
-        console.log(data);
-
-        // broadcast to all connected clients
-        io.emit("message", data);
+        // Just send it back to client
+        socket.emit("receive_scores", scores);
     });
 
+    socket.on("disconnect", () => {
+        console.log("User disconnected:", socket.id);
+    });
 });
 
-httpServer.listen(3000, () => {
-    console.log("Server is listening on port 3000");
+
+httpServer.listen(3000, ()=>{
+    console.log("Server is running on port 3000");
 });
